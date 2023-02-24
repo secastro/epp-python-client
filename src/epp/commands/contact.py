@@ -59,8 +59,8 @@ create = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <create>
             <contact:create xmlns:contact="urn:ietf:params:xml:ns:contact-1.0">
                 <contact:id>%(contact_id)s</contact:id>
-%(contact_fields)s
 %(postal_infos)s
+%(contact_fields)s
             %(auth_info)s</contact:create>
         </create>
         <clTRID>%(cltrid)s</clTRID>

@@ -77,6 +77,7 @@ class EPPConnection:
         self.password = password
         self.socket = None
         self.ssl = None
+        self.context = ssl.create_default_context()
         self.version = None
         self.format_32 = get_format_32()
         self.verbose = verbose
@@ -96,7 +97,7 @@ class EPPConnection:
                 logger.exception('connection refused')
             return False
         try:
-            self.ssl = ssl.wrap_socket(self.socket)
+            self.ssl = self.context.wrap_socket(self.socket, server_hostname=self.host)
         except socket.error as exc:
             if self.raise_errors:
                 raise exc
@@ -146,12 +147,16 @@ class EPPConnection:
     def read(self):
         if not self.ssl:
             raise EPPConnectionAlreadyClosedError(Exception('ssl channel disconnected'))
-        ret = None
+        ret = b''
         try:
             length = self.ssl.read(4)
             if length:
-                i = int_from_net(length, self.format_32) - 4
-                ret = self.ssl.read(i)
+                msg_len = int_from_net(length, self.format_32) - 4
+                i_len = msg_len
+                while len(ret) < msg_len:
+                    tmp = self.ssl.read(i_len)
+                    ret = ret + tmp
+                    i_len = msg_len - len(ret)
         except (ssl.SSLEOFError, ssl.SSLZeroReturnError, BrokenPipeError, socket.timeout, ) as exc:
             if self.verbose:
                 logger.exception('EPP connection already closed')
