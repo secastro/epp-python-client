@@ -222,7 +222,7 @@ class EPPConnection:
             raise EPPStreamSequenceBrokenError()
         if soup is True or (self.return_soup is True and soup is not False):
             try:
-                soup = BeautifulSoup(raw, "lxml")
+                soup = BeautifulSoup(raw, features="xml")
                 result = soup.find('result')
                 code = int(result.get('code'))
                 if code < 1000 or code > 9999:
@@ -241,8 +241,8 @@ class EPPConnection:
     def greeting(self):
         greeting_response = self.read()
         try:
-            soup = BeautifulSoup(greeting_response, "lxml")
-            svid = soup.find('svid').text
+            soup = BeautifulSoup(greeting_response, features="xml")
+            svid = soup.find('svID').text
             self.version = soup.find('version').text
         except Exception as exc:
             if self.raise_errors:
@@ -263,7 +263,7 @@ class EPPConnection:
             user=self.user,
             password=self.password,
         ), **kwargs)
-        soup = BeautifulSoup(login_response, "lxml")
+        soup = BeautifulSoup(login_response, features="xml")
         result = soup.find('result')
         code = int(result.get('code'))
         if code != 1000:
@@ -273,7 +273,7 @@ class EPPConnection:
     def logout(self, **kwargs):
         kwargs['soup'] = False
         logout_response = self.call(cmd=commands.logout, **kwargs)
-        soup = BeautifulSoup(logout_response, "lxml")
+        soup = BeautifulSoup(logout_response, features="xml")
         result = soup.find('result')
         code = int(result.get('code'))
         if code not in [1000, 1300, 1500, ]:
