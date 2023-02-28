@@ -451,8 +451,8 @@ class EPPConnection:
             cltrid=make_cltrid(),
             domain_name=domain_name,
             auth_info='' if not auth_info else commands.domain.auth_info2 % auth_info,
-            add_nameservers='\n'.join([
-                commands.domain.single_nameserver2 % ns for ns in add_nameservers
+            add_nameservers='' if not add_nameservers else commands.domain.nameserver_entry % '\n'.join([
+                commands.domain.single_host_object % ns for ns in add_nameservers
             ]),
             remove_nameservers='\n'.join([
                 commands.domain.single_nameserver2 % ns for ns in remove_nameservers
